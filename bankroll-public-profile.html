@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bankroll - Profil Public</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0e1a;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  button, select { font-family: inherit; }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    padding: 16px;
+  }
+
+  /* ═══════════════════════════════════════════
+     BACK NAV
+     ═══════════════════════════════════════════ */
+  .back-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1e2736;
+  }
+  .back-btn {
+    background: none; border: none; color: #9ca3af;
+    cursor: pointer; display: flex; align-items: center;
+    padding: 4px;
+  }
+  .back-btn:hover { color: #fff; }
+  .back-nav-title {
+    font-size: 15px; font-weight: 600; color: #fff;
+  }
+
+  /* ═══════════════════════════════════════════
+     PROFILE HEADER
+     ═══════════════════════════════════════════ */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .profile-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .avatar-badge {
+    position: absolute;
+    bottom: -2px; right: -2px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #2563eb;
+    border: 2px solid #0a0e1a;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .profile-info { flex: 1; }
+  .profile-name {
+    font-size: 17px; font-weight: 700; margin-bottom: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .verified-badge {
+    display: inline-flex;
+    background: #2563eb;
+    border-radius: 50%;
+    width: 16px; height: 16px;
+    align-items: center; justify-content: center;
+  }
+  .profile-handle {
+    font-size: 13px; color: #6b7280;
+  }
+  .profile-joined {
+    font-size: 11px; color: #4b5563; margin-top: 2px;
+  }
+
+  /* Follow button */
+  .btn-follow {
+    background: linear-gradient(135deg, #1a3f8a, #2563eb);
+    border: none; border-radius: 10px;
+    color: #fff; padding: 10px 20px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(37, 99, 235, 0.25);
+    white-space: nowrap;
+  }
+  .btn-follow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+  }
+  .btn-follow.following {
+    background: #1a1f2e;
+    border: 1px solid #2a3040;
+    box-shadow: none;
+    color: #9ca3af;
+  }
+  .btn-follow.following:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: none;
+  }
+
+  /* ═══════════════════════════════════════════
+     BIO
+     ═══════════════════════════════════════════ */
+  .bio-section {
+    background: #111827;
+    border: 1px solid #1e2736;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #d1d5db;
+    line-height: 1.5;
+  }
+
+  /* ═══════════════════════════════════════════
+     SUB-TABS (Public / Privé)
+     ═══════════════════════════════════════════ */
+  .page-sub-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .page-sub-tab {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #2a3040;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .page-sub-tab.active {
+    background: #1a1f2e;
+    color: #fff;
+    border-color: #3a4560;
+  }
+  .page-sub-tab:hover:not(.active) {
+    background: #141925;
+  }
+
+  /* ═══════════════════════════════════════════
+     STATS STRIP
+     ═══════════════════════════════════════════ */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: #111827;
+    border: 1px solid #1e2736;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stat-card.full-width {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #0f1a2e, #111827);
+    border-color: #1a3050;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 2px;
+  }
+  .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .stat-card.full-width .stat-value { font-size: 22px; }
+  .stat-value.profit { color: #22c55e; }
+  .stat-value.loss { color: #ef4444; }
+  .stat-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Followers row special */
+  .followers-row {
+    grid-column: 1 / -1;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .followers-left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .followers-count {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .followers-count .fc-item {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .fc-num { font-size: 15px; font-weight: 700; }
+  .fc-label { font-size: 12px; color: #6b7280; }
+
+  /* ═══════════════════════════════════════════
+     TABS
+     ═══════════════════════════════════════════ */
+  .tabs {
+    display: flex;
+    background: #111827;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 14px;
+    border: 1px solid #1e2736;
+  }
+  .tab {
+    flex: 1; text-align: center;
+    padding: 8px 6px; font-size: 13px;
+    color: #6b7280; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center;
+    justify-content: center; gap: 5px;
+    border: none; background: transparent;
+  }
+  .tab.active { background: #1a1f2e; color: #fff; }
+  .tab .badge {
+    background: #2563eb; color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 10px;
+  }
+  .tab .badge.gray {
+    background: #374151; color: #9ca3af;
+  }
+
+  /* ═══════════════════════════════════════════
+     CHART
+     ═══════════════════════════════════════════ */
+  .chart-section {
+    background: #111827;
+    border: 1px solid #1e2736;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .chart-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+  .chart-filters { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .sport-select {
+    flex: 1; background: #1a1f2e; border: 1px solid #2a3040;
+    border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 13px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .time-filters { display: flex; gap: 4px; }
+  .time-btn {
+    background: #1a1f2e; border: 1px solid #2a3040;
+    border-radius: 6px; color: #6b7280;
+    padding: 6px 10px; font-size: 12px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .time-btn.active { background: #2a3040; color: #fff; border-color: #3a4560; }
+  .time-btn:hover:not(.active) { background: #1e2435; }
+  .chart-placeholder {
+    height: 160px;
+    background: linear-gradient(180deg, transparent, rgba(37,99,235,0.05));
+    border-radius: 8px; overflow: hidden;
+  }
+  .chart-placeholder svg { width: 100%; height: 100%; }
+
+  /* ═══════════════════════════════════════════
+     RECENT BETS
+     ═══════════════════════════════════════════ */
+  .bets-section {
+    background: #111827;
+    border: 1px solid #1e2736;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .bets-header {
+    padding: 14px 14px 10px;
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bets-header .see-all {
+    font-size: 12px; color: #2563eb; cursor: pointer;
+    font-weight: 500;
+  }
+  .bet-item {
+    padding: 12px 14px;
+    border-top: 1px solid #1e2736;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .bet-sport-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(37,99,235,0.1);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .bet-info { flex: 1; min-width: 0; }
+  .bet-match {
+    font-size: 13px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .bet-details {
+    font-size: 11px; color: #6b7280; margin-top: 2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .bet-odds {
+    background: #1a1f2e; padding: 1px 6px;
+    border-radius: 4px; font-weight: 600; font-size: 11px;
+  }
+  .bet-right {
+    text-align: right; flex-shrink: 0;
+  }
+  .bet-result {
+    font-size: 12px; font-weight: 700;
+    padding: 3px 8px; border-radius: 6px;
+    display: inline-block; margin-bottom: 2px;
+  }
+  .bet-result.win {
+    background: rgba(34, 197, 94, 0.12); color: #22c55e;
+  }
+  .bet-result.loss {
+    background: rgba(239, 68, 68, 0.12); color: #ef4444;
+  }
+  .bet-result.pending {
+    background: rgba(37, 99, 235, 0.12); color: #2563eb;
+  }
+  .bet-result.push {
+    background: rgba(107, 114, 128, 0.12); color: #9ca3af;
+  }
+  .bet-stake {
+    font-size: 11px; color: #6b7280;
+  }
+  .bet-gain {
+    font-size: 12px; font-weight: 600;
+  }
+  .bet-gain.pos { color: #22c55e; }
+  .bet-gain.neg { color: #ef4444; }
+  .bet-gain.neutral { color: #9ca3af; }
+
+  /* ═══════════════════════════════════════════
+     PERFORMANCE MINI STATS
+     ═══════════════════════════════════════════ */
+  .perf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .perf-card {
+    background: #111827;
+    border: 1px solid #1e2736;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+  .perf-card .perf-val {
+    font-size: 16px; font-weight: 700; margin-bottom: 2px;
+  }
+  .perf-card .perf-label {
+    font-size: 10px; color: #6b7280;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ Back nav ═══ -->
+  <div class="back-nav">
+    <button class="back-btn">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <span class="back-nav-title">Profil Tipster</span>
+  </div>
+
+  <!-- ═══ Profile header ═══ -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      O
+      <div class="avatar-badge">
+        <svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+    </div>
+    <div class="profile-info">
+      <div class="profile-name">
+        Oussama_BJ
+        <span class="verified-badge">
+          <svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+      </div>
+      <div class="profile-joined">Membre depuis Sept. 2024</div>
+    </div>
+    <button class="btn-follow" id="followBtn" onclick="toggleFollow()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+      Follow
+    </button>
+  </div>
+
+  <!-- ═══ Bio ═══ -->
+  <div class="bio-section">
+    Spécialiste croisements NBA & Euroleague. Approche value betting. ROC +1200% en 6 mois.
+  </div>
+
+  <!-- ═══ Nav Public / Privé ═══ -->
+  <div class="page-sub-tabs">
+    <button class="page-sub-tab active" onclick="switchView(this, 'public')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+      Public
+    </button>
+    <button class="page-sub-tab" onclick="switchView(this, 'prive')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Privé
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       VUE PUBLIC
+       ════════════════════════════════════════ -->
+  <div id="view-public">
+    <!-- Stats grid — 6 cards -->
+    <div class="perf-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="perf-card">
+        <div class="perf-val" style="color:#22c55e;">+21 840 u</div>
+        <div class="perf-label">Profit</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-val">57.1%</div>
+        <div class="perf-label">Win Rate</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-val" style="color:#22c55e;">+174.8%</div>
+        <div class="perf-label">Yield</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-val">248</div>
+        <div class="perf-label">Followers</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-val">3 661</div>
+        <div class="perf-label">Nb de paris</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-val">@1.94</div>
+        <div class="perf-label">Cote moy.</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this, 'global')">Global</button>
+      <button class="tab" onclick="switchTab(this, 'encours')">En-cours <span class="badge">12</span></button>
+      <button class="tab" onclick="switchTab(this, 'historique')">Historique <span class="badge gray">184</span></button>
+    </div>
+
+    <!-- Tab: Global -->
+    <div id="tab-global">
+      <!-- Chart -->
+      <div class="chart-section">
+        <div class="chart-title">Évolution du Capital</div>
+        <div class="chart-filters">
+          <select class="sport-select"><option>Tous les sports</option></select>
+        </div>
+        <div class="time-filters" style="margin-bottom: 14px;">
+          <button class="time-btn">1S</button>
+          <button class="time-btn">1M</button>
+          <button class="time-btn">3M</button>
+          <button class="time-btn">1A</button>
+          <button class="time-btn active">Tout</button>
+          <button class="time-btn">📅</button>
+        </div>
+        <div class="chart-placeholder">
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2563eb" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,140 Q30,135 60,130 T120,100 T180,90 T240,50 T300,40 T360,20 L400,15 L400,160 L0,160Z" fill="url(#grad)"/>
+            <path d="M0,140 Q30,135 60,130 T120,100 T180,90 T240,50 T300,40 T360,20 L400,15" fill="none" stroke="#2563eb" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Paris récents -->
+      <div class="bets-section">
+        <div class="bets-header">
+          <span>Paris récents</span>
+          <span class="see-all">Voir tout</span>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Lakers vs Celtics</div>
+            <div class="bet-details">NBA · Hier <span class="bet-odds">@2.15</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+23,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Barca vs Real Madrid</div>
+            <div class="bet-details">Euroleague · Hier <span class="bet-odds">@1.85</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result loss">Perdu</div>
+            <div class="bet-gain neg">-20,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Warriors vs Suns</div>
+            <div class="bet-details">NBA · 09/03 <span class="bet-odds">@1.92</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+18,40 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Nuggets vs Bucks</div>
+            <div class="bet-details">NBA · 08/03 <span class="bet-odds">@2.40</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result pending">En cours</div>
+            <div class="bet-gain neutral">20,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Knicks vs Heat</div>
+            <div class="bet-details">NBA · 07/03 <span class="bet-odds">@1.75</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+15,00 u</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: En-cours (hidden) -->
+    <div id="tab-encours" style="display:none;">
+      <div class="bets-section">
+        <div class="bets-header"><span>Paris en cours</span></div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Nuggets vs Bucks</div>
+            <div class="bet-details">NBA · 08/03 <span class="bet-odds">@2.40</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result pending">En cours</div>
+            <div class="bet-gain neutral">20,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">⚽</div>
+          <div class="bet-info">
+            <div class="bet-match">PSG vs Bayern</div>
+            <div class="bet-details">UCL · 11/03 <span class="bet-odds">@1.95</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result pending">En cours</div>
+            <div class="bet-gain neutral">25,00 u</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Historique (hidden) -->
+    <div id="tab-historique" style="display:none;">
+      <div class="bets-section">
+        <div class="bets-header">
+          <span>Historique des paris</span>
+          <span class="see-all">Voir tout</span>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Lakers vs Celtics</div>
+            <div class="bet-details">NBA · Hier <span class="bet-odds">@2.15</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+23,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Barca vs Real Madrid</div>
+            <div class="bet-details">Euroleague · Hier <span class="bet-odds">@1.85</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result loss">Perdu</div>
+            <div class="bet-gain neg">-20,00 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Warriors vs Suns</div>
+            <div class="bet-details">NBA · 09/03 <span class="bet-odds">@1.92</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+18,40 u</div>
+          </div>
+        </div>
+        <div class="bet-item">
+          <div class="bet-sport-icon">🏀</div>
+          <div class="bet-info">
+            <div class="bet-match">Knicks vs Heat</div>
+            <div class="bet-details">NBA · 07/03 <span class="bet-odds">@1.75</span></div>
+          </div>
+          <div class="bet-right">
+            <div class="bet-result win">Gagné</div>
+            <div class="bet-gain pos">+15,00 u</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       VUE PRIVÉE (Ma bankroll)
+       ════════════════════════════════════════ -->
+  <div id="view-prive" style="display:none;">
+    <!-- Header bankroll -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <select class="bankroll-select" style="flex:1;background:#1a1f2e;border:1px solid #2a3040;border-radius:10px;color:#fff;padding:10px 14px;font-size:14px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 fill=%27%23888%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M8 11L3 6h10z%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;">
+        <option>bk croisement basket</option>
+      </select>
+      <button style="background:#1a1f2e;border:1px solid #2a3040;border-radius:10px;color:#fff;padding:10px 16px;font-size:14px;cursor:pointer;white-space:nowrap;">+ Créer</button>
+    </div>
+
+    <!-- Ajouter un pari -->
+    <button style="width:100%;background:linear-gradient(135deg,#1a3f8a,#2563eb);border:none;border-radius:10px;color:#fff;padding:11px;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:6px;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Ajouter un pari
+    </button>
+
+    <!-- Stats -->
+    <div class="stats-strip">
+      <div class="stat-card full-width">
+        <div>
+          <div class="stat-label">Capital Net</div>
+          <div class="stat-value" style="font-size:22px;">23 484,20 €</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6"/></svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Mise en cours</div>
+          <div class="stat-value" style="font-size:16px;">49,00 €</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(249,115,22,0.15);color:#f97316;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label">Profit</div>
+          <div class="stat-value" style="font-size:16px;color:#22c55e;">+21 840,21 u</div>
+        </div>
+        <div class="stat-icon" style="background:rgba(37,99,235,0.15);color:#2563eb;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs privé -->
+    <div class="tabs">
+      <div class="tab active">Global</div>
+      <div class="tab">En-cours <span class="badge">18</span></div>
+      <div class="tab">Historique <span class="badge gray">259</span></div>
+    </div>
+
+    <!-- Chart privé -->
+    <div class="chart-section">
+      <div class="chart-title">Évolution du Capital</div>
+      <div class="chart-filters">
+        <select class="sport-select"><option>Tous les sports</option></select>
+      </div>
+      <div class="time-filters" style="margin-bottom: 14px;">
+        <button class="time-btn">1S</button>
+        <button class="time-btn">1M</button>
+        <button class="time-btn">3M</button>
+        <button class="time-btn">1A</button>
+        <button class="time-btn active">Tout</button>
+        <button class="time-btn">📅 Perso</button>
+      </div>
+      <div class="chart-placeholder">
+        <div style="width:100%;height:100%;">
+          <svg viewBox="0 0 400 160" preserveAspectRatio="none" style="width:100%;height:100%;">
+            <defs>
+              <linearGradient id="grad2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2563eb" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,140 Q30,135 60,130 T120,100 T180,90 T240,50 T300,40 T360,20 L400,15 L400,160 L0,160Z" fill="url(#grad2)"/>
+            <path d="M0,140 Q30,135 60,130 T120,100 T180,90 T240,50 T300,40 T360,20 L400,15" fill="none" stroke="#2563eb" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchView(el, view) {
+    document.querySelectorAll('.page-sub-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('view-public').style.display = view === 'public' ? 'block' : 'none';
+    document.getElementById('view-prive').style.display = view === 'prive' ? 'block' : 'none';
+  }
+
+  function switchTab(el, tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('[id^="tab-"]').forEach(p => p.style.display = 'none');
+    document.getElementById('tab-' + tabId).style.display = 'block';
+  }
+
+  function toggleFollow() {
+    const btn = document.getElementById('followBtn');
+    if (btn.classList.contains('following')) {
+      btn.classList.remove('following');
+      btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg> Follow`;
+    } else {
+      btn.classList.add('following');
+      btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Following`;
+    }
+  }
+
+  // Time filter toggle
+  document.querySelectorAll('.time-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
